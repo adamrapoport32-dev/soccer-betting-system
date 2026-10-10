@@ -1,0 +1,31 @@
+
+name: EPL Fixtures and Results
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve Premier League data
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: python3 scripts/epl_sync.py
+
+      - name: Save results
+        uses: actions/upload-artifact@v4
+        with:
+          name: epl-snapshot
+          path: artifacts/epl/latest.json
+          retention-days: 30
